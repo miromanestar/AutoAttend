@@ -2,7 +2,7 @@
   "name": "autoattend_server",
   "version": "1.0.0",
   "description": "",
-  "main": "src/index.js",
+  "main": "src/server.js",
   "type": "module",
   "scripts": {
     "start": "nodemon server.js"

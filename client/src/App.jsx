@@ -6,6 +6,9 @@ import '@tensorflow/tfjs'
 import * as canvas from 'canvas'
 import * as faceapi from 'face-api.js'
 
+import mtcnnModel from './public/models/mtcnn_model-weights_manifest.json'
+console.log(mtcnnModel)
+
 const mtcnnForwardParams = {
     minFaceSize: 200,
 }
@@ -18,7 +21,8 @@ function App() {
     const options = new faceapi.MtcnnOptions()
     const faceDetection = async () => {
         console.log('Detections')
-        await faceapi.loadMtcnnModel('/models')
+        const model = await faceapi.loadMtcnnModel('./models')
+        console.log(model)
         await faceapi.loadFaceDetectionModel('/models')
     }
 
