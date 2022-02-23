@@ -32,7 +32,7 @@ Grabs a given user with matching ID
 Creates an event
 
 ### `/events/{id}`
-Allows for overwiting an event
+Allows for overwiting an event, including either starting or stopping
 
 ### `/events/{id}/participants`
 Adds participants to an event
