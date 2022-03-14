@@ -6,8 +6,7 @@ import '@tensorflow/tfjs'
 import * as canvas from 'canvas'
 import * as faceapi from 'face-api.js'
 
-import mtcnnModel from './public/models/mtcnn_model-weights_manifest.json'
-console.log(mtcnnModel)
+//https://levelup.gitconnected.com/do-not-laugh-a-simple-ai-powered-game-3e22ad0f8166
 
 const mtcnnForwardParams = {
     minFaceSize: 200,
@@ -19,11 +18,13 @@ function App() {
 
 
     const options = new faceapi.MtcnnOptions()
+    
     const faceDetection = async () => {
-        console.log('Detections')
-        const model = await faceapi.loadMtcnnModel('./models')
+        console.log('Mtcnn')
+        const model = await faceapi.loadMtcnnModel('src/public/models')
         console.log(model)
-        await faceapi.loadFaceDetectionModel('/models')
+        console.log('DetectionModel')
+        await faceapi.loadFaceDetectionModel('./models')
     }
 
     useEffect(() => {
