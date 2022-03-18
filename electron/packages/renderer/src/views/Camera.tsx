@@ -65,7 +65,6 @@ const Camera = () => {
     useEffect(() => {
         
         (async () => { 
-            await faceapi.loadTinyFaceDetectorModel('/models')
             await faceapi.loadSsdMobilenetv1Model('/models')
             await faceapi.loadFaceLandmarkModel('/models')
             await faceapi.loadFaceDetectionModel('./models')
