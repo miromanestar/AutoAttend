@@ -17,11 +17,14 @@ const dbDescriptors = (await supabase.from('Descriptor').select()).data
 let catDescriptors = {}
 dbDescriptors.map(d => {
     const temp = catDescriptors[d.user_id]
+    const floatArr = Float32Array.from(d.descriptor)
 
     if (!d.descriptor)
         return
-    catDescriptors[d.user_id] = temp ? [...temp, d.descriptor] : [d.descriptor]
+
+    catDescriptors[d.user_id] = temp ? [...temp, floatArr] : [floatArr]
 })
+
 let descriptorArr = Object.keys(catDescriptors).map(key => new faceapi.LabeledFaceDescriptors(key, catDescriptors[key]))
 console.log('Descriptors retrieved')
 
@@ -33,7 +36,7 @@ const createDescriptors = async () => {
 
         return {
             user_id: entry.id,
-            descriptor: desc.descriptor
+            descriptor: [ ...desc.descriptor ]
         }
     }))
 
