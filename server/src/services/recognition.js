@@ -28,6 +28,8 @@ dbDescriptors.map(d => {
 let descriptorArr = Object.keys(catDescriptors).map(key => new faceapi.LabeledFaceDescriptors(key, catDescriptors[key]))
 console.log('Descriptors retrieved')
 
+const matcher = new faceapi.FaceMatcher(descriptorArr, 0.6)
+
 
 const createDescriptors = async () => {
     const results = await Promise.all(testImages.map(async entry => {
