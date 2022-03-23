@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react'
 import Webcam from 'react-webcam'
-import * as faceapi from 'face-api.js'
+import * as faceapi from '@vladmandic/face-api'
 import { createUseStyles } from 'react-jss'
 
 const useStyles = createUseStyles({

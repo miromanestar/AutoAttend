@@ -15,8 +15,8 @@
     "node": ">=14.17.0"
   },
   "dependencies": {
+    "@vladmandic/face-api": "^1.6.6",
     "electron-store": "^8.0.1",
-    "face-api.js": "^0.22.2",
     "react-jss": "^10.9.0",
     "react-webcam": "^7.0.0"
   },
