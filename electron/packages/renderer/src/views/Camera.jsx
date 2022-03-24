@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react'
 import Webcam from 'react-webcam'
 import * as faceapi from '@vladmandic/face-api'
 import { createUseStyles } from 'react-jss'
+import Axios from '../tools/Axios'
 
 const useStyles = createUseStyles({
     root: {
@@ -24,11 +25,11 @@ const MAX_FRAMERATE = 60
 const Camera = () => {
     const classes = useStyles()
 
-    const webcamRef: any = useRef(null)
-    const canvasRef: any = useRef(null)
-    const framerate: any = useRef({ fr: 0, count: 0})
+    const webcamRef = useRef(null)
+    const canvasRef = useRef(null)
+    const framerate = useRef({ fr: 0, count: 0})
 
-    let temp: any = null
+    let temp = null
 
     const doDetection = async () => {
         if (framerate.current.count >= MAX_FRAMERATE)
@@ -39,15 +40,15 @@ const Camera = () => {
         const videoEl = webcamRef.current.video
         const displaySize = { width: videoEl?.clientWidth || 0, height: videoEl?.clientHeight || 0 }
         faceapi.matchDimensions(canvasRef.current, displaySize)
-        const resizedDetections: any = faceapi.resizeResults(detections, displaySize)
+        const resizedDetections = faceapi.resizeResults(detections, displaySize)
 
         faceapi.draw.drawDetections(canvasRef.current, resizedDetections)
         //faceapi.draw.drawFaceLandmarks(canvasRef.current, resizedDetections)
 
         const matcher = new faceapi.FaceMatcher(temp, 0.6)
-        const results = resizedDetections.map((d: any) => matcher.findBestMatch(d.descriptor))
+        const results = resizedDetections.map(d => matcher.findBestMatch(d.descriptor))
         
-        results.forEach((bestMatch: any, i: any) => {
+        results.forEach((bestMatch, i) => {
             const box = resizedDetections[i].detection.box
             const text = bestMatch.toString()
             const drawBox = new faceapi.draw.DrawBox(box, { label: text })

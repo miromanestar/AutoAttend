@@ -18,6 +18,7 @@ const auth = (req, res, next) => {
     }
 }
 
+app.use(Express.json())
 app.use(auth)
 
 //Set the routes

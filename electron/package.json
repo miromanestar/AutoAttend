@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@vladmandic/face-api": "^1.6.6",
+    "axios": "^0.26.1",
     "electron-store": "^8.0.1",
     "react-jss": "^10.9.0",
     "react-webcam": "^7.0.0"
