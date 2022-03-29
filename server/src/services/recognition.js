@@ -45,16 +45,13 @@ const createDescriptors = async () => {
     return await supabase.from('Descriptor').insert(results)
 }
 
-const matchDescriptors = async (descriptors) => {
-    return await Promise.all(descriptors.map(async descriptor => {
-        const matches = await faceapi.matchDimensions(canvas, descriptor.descriptor)
-        const res = await faceapi.findFaceMatches(matches, catDescriptors)
+const matchDescriptors = async (data) => {
+    console.log('hey')
+    const { detections } = data
+    if (!detections)
+        return []
 
-        return {
-            user: descriptor.user,
-            matches: res
-        }
-    }))
+    return detections.map(detection => matcher.findBestMatch(detection))
 }
 
 export {

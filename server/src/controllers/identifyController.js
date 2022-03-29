@@ -7,8 +7,6 @@ export const getIndex = async (req, res) => {
 }
 
 export const postIndex = async (req, res) => {
-    const { descriptors } = req.body
-    const { data, error } = await matchDescriptors(descriptors)
-
-    send(res, { data, error })
+    const data = await matchDescriptors(req.body)
+    res.json(data)
 }

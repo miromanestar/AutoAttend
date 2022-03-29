@@ -1,10 +1,12 @@
 import 'dotenv/config'
 import Express from 'express'
 import { createDescriptors } from './services/recognition.js'
+import cors from 'cors'
 
 import eventsRouter from './routes/events.js'
 import usersRouter from './routes/users.js'
 import descriptorsRouter from './routes/descriptors.js'
+import identifyRouter from './routes/identify.js'
 
 const app = Express()
 const port = process.env.PORT || 3000
@@ -18,6 +20,7 @@ const auth = (req, res, next) => {
     }
 }
 
+app.use(cors())
 app.use(Express.json())
 app.use(auth)
 
@@ -25,6 +28,7 @@ app.use(auth)
 app.use('/events/', eventsRouter)
 app.use('/users/', usersRouter)
 app.use('/descriptors/', descriptorsRouter)
+app.use('/identify/', identifyRouter)
 
 app.listen(port, () => console.log(`AutoAttend server started on port ${port}`))
 

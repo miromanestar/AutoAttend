@@ -28,32 +28,51 @@ const Camera = () => {
     const webcamRef = useRef(null)
     const canvasRef = useRef(null)
     const framerate = useRef({ fr: 0, count: 0})
+    const currentDetections = useRef([])
 
-    let temp = null
+    //let temp = null
+
+    const doRecognition = async () => {
+        console.log(currentDetections.current)
+        if (currentDetections.current.length === 0) {
+            setTimeout(() => {
+                doRecognition()
+            }, 300)
+            return
+        }
+
+        const resizedDetections = currentDetections.current
+
+        const res = await Axios.post('/identify', { 
+            detections: resizedDetections.map(d => Array.from(d.descriptor)),
+        }).catch(e => {
+            console.error(e)
+        })
+
+        const results = res?.data || []
+
+        results?.length > 0 && results.forEach((bestMatch, i) => {
+            const box = resizedDetections[i].detection.box
+            const text = `${bestMatch._label} (${bestMatch._distance.toFixed(2)})`
+            const drawBox = new faceapi.draw.DrawBox(box, { label: text })
+            drawBox.draw(canvasRef.current)
+        })
+
+        setTimeout(() => {
+            doRecognition()
+        }, 300)
+    }
 
     const doDetection = async () => {
-        if (framerate.current.count >= MAX_FRAMERATE)
-            return
 
         const detections = await faceapi.detectAllFaces(webcamRef.current.video, new faceapi.SsdMobilenetv1Options()).withFaceLandmarks().withFaceDescriptors()
-            
         const videoEl = webcamRef.current.video
         const displaySize = { width: videoEl?.clientWidth || 0, height: videoEl?.clientHeight || 0 }
         faceapi.matchDimensions(canvasRef.current, displaySize)
         const resizedDetections = faceapi.resizeResults(detections, displaySize)
 
+        currentDetections.current = resizedDetections
         faceapi.draw.drawDetections(canvasRef.current, resizedDetections)
-        //faceapi.draw.drawFaceLandmarks(canvasRef.current, resizedDetections)
-
-        const matcher = new faceapi.FaceMatcher(temp, 0.6)
-        const results = resizedDetections.map(d => matcher.findBestMatch(d.descriptor))
-        
-        results.forEach((bestMatch, i) => {
-            const box = resizedDetections[i].detection.box
-            const text = bestMatch.toString()
-            const drawBox = new faceapi.draw.DrawBox(box, { label: text })
-            drawBox.draw(canvasRef.current)
-        })
 
         framerate.current.count++
         let ctx = canvasRef.current.getContext('2d')
@@ -61,6 +80,18 @@ const Camera = () => {
         ctx.fillStyle = '#000'
         ctx.fillText(`${framerate.current.fr} FPS`, 10, 30)
 
+    }
+
+    const beginDetection = () => {
+        console.log('Camera started')
+        
+        setTimeout(async () => {
+            console.log('Beginning detection')
+            await doDetection()
+            doRecognition()
+            while (true)
+                await doDetection()
+        }, 300)
     }
 
     useEffect(() => {
@@ -71,21 +102,8 @@ const Camera = () => {
             await faceapi.loadFaceDetectionModel('./models')
             await faceapi.loadFaceRecognitionModel('./models')
 
-            const img = await faceapi.fetchImage('https://media-exp1.licdn.com/dms/image/C4D03AQGg2lhu0LMXrA/profile-displayphoto-shrink_800_800/0/1589210134416?e=1652918400&v=beta&t=pXyID_PClzCQQavvyyzaL0Bn3ubd4cPKojACc9Rm40Q')
-            const desc = await faceapi.detectSingleFace(img).withFaceLandmarks().withFaceDescriptor()
-
-            if (!desc)
-                throw new Error('No face detected')
-
-            temp = new faceapi.LabeledFaceDescriptors('Miro', [desc.descriptor])
-
             console.log('Models loaded')
-            setTimeout(async () => { 
-                console.log('Beginning detection')
-                
-                while (true)
-                    await doDetection()
-            }, 300)
+
         })()
 
         console.log('Loading models...')
@@ -102,7 +120,7 @@ const Camera = () => {
                 className={classes.webcam}
                 audio={false}
                 ref={webcamRef}
-                onUserMedia={(stream) => console.log('Camera started')}
+                onUserMedia={(stream) => beginDetection()}
                 // videoConstraints={{
                 //     frameRate: { max: 20 },
                 // }}
