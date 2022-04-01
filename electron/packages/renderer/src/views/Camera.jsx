@@ -29,11 +29,10 @@ const Camera = () => {
     const canvasRef = useRef(null)
     const framerate = useRef({ fr: 0, count: 0})
     const currentDetections = useRef([])
-
-    //let temp = null
+    const recogs = useRef([])
 
     const doRecognition = async () => {
-        console.log(currentDetections.current)
+        //console.log(currentDetections.current)
         if (currentDetections.current.length === 0) {
             setTimeout(() => {
                 doRecognition()
@@ -50,13 +49,14 @@ const Camera = () => {
         })
 
         const results = res?.data || []
+        recogs.current = results
 
-        results?.length > 0 && results.forEach((bestMatch, i) => {
-            const box = resizedDetections[i].detection.box
-            const text = `${bestMatch._label} (${bestMatch._distance.toFixed(2)})`
-            const drawBox = new faceapi.draw.DrawBox(box, { label: text })
-            drawBox.draw(canvasRef.current)
-        })
+        // results?.length > 0 && results.forEach((bestMatch, i) => {
+        //     const box = resizedDetections[i].detection.box
+        //     const text = `${bestMatch._label} (${bestMatch._distance.toFixed(2)})`
+        //     const drawBox = new faceapi.draw.DrawBox(box, { label: text })
+        //     drawBox.draw(canvasRef.current)
+        // })
 
         setTimeout(() => {
             doRecognition()
@@ -73,6 +73,15 @@ const Camera = () => {
 
         currentDetections.current = resizedDetections
         faceapi.draw.drawDetections(canvasRef.current, resizedDetections)
+
+        recogs.current?.length > 0 && recogs.current.forEach((bestMatch, i) => {
+            if (!resizedDetections[i])
+                return
+            const box = resizedDetections[i].detection.box
+            const text = `${bestMatch._label} (${bestMatch._distance.toFixed(2)})`
+            const drawBox = new faceapi.draw.DrawBox(box, { label: text })
+            drawBox.draw(canvasRef.current)
+        })
 
         framerate.current.count++
         let ctx = canvasRef.current.getContext('2d')

@@ -46,12 +46,13 @@ const createDescriptors = async () => {
 }
 
 const matchDescriptors = async (data) => {
-    console.log('hey')
     const { detections } = data
     if (!detections)
         return []
 
-    return detections.map(detection => matcher.findBestMatch(detection))
+    const temp = detections.map(detection => matcher.findBestMatch(detection))
+    console.log(temp)
+    return temp
 }
 
 export {
