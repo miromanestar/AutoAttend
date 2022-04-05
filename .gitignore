@@ -1,5 +1,6 @@
 node_modules
 .env
+milvus/volumes
 
 # Supabase
 **/supabase/.branches
