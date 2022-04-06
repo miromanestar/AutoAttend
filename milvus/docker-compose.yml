@@ -42,6 +42,15 @@ services:
       - "etcd"
       - "minio"
 
+  attu:
+    container_name: milvus_attu
+    image: zilliz/attu:latest
+    ports:
+      - 8000:3000
+    environment:
+      - HOST_URL=http://localhost:8000
+      - MILVUS_URL=localhost:19530
+
 networks:
   default:
     name: milvus

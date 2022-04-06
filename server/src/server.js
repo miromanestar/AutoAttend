@@ -8,6 +8,8 @@ import usersRouter from './routes/users.js'
 import descriptorsRouter from './routes/descriptors.js'
 import identifyRouter from './routes/identify.js'
 
+import milvus from './services/milvus.js'
+
 const app = Express()
 const port = process.env.PORT || 3000
 
@@ -40,4 +42,9 @@ app.get('/', async (req, res) => {
 app.get('/test', async (req, res) => {
     const { data, error } = await createDescriptors()
     res.json({ message: 'Descriptors created', data, error })
+})
+
+app.get('/test2', async(req, res) => {
+    const r = await milvus.collectionManager.getCollectionStatistics({ collection_name: 'faces' })
+    res.json({ message: r })
 })

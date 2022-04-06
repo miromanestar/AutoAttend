@@ -3,6 +3,7 @@ import * as faceapi from '@vladmandic/face-api'
 import canvas from 'canvas'
 
 import supabase from './supabase.js'
+import milvus from './milvus.js'
 import testImages from '../assets/testImages.json'
 
 const { Canvas, Image, ImageData } = canvas
@@ -37,12 +38,17 @@ const createDescriptors = async () => {
         const desc = await faceapi.detectSingleFace(image).withFaceLandmarks().withFaceDescriptor()
 
         return {
+            id: Math.random() * 1000000000,
             user_id: entry.id,
             descriptor: [ ...desc.descriptor ]
         }
     }))
 
-    return await supabase.from('Descriptor').insert(results)
+    return await milvus.dataManager.insert({
+        collection_name: 'faces',
+        fields_data: results
+    })
+    //return await supabase.from('Descriptor').insert(results)
 }
 
 const matchDescriptors = async (data) => {

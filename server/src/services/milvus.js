@@ -1,26 +1,32 @@
 import { MilvusClient } from '@zilliz/milvus2-sdk-node'
-import { DataType } from '@zilliz/milvus2-sdk-node/dist/milvus/types'
 
 const milvus = new MilvusClient(process.env.MILVUS_URL)
 
 const params = {
-    name: 'faces',
+    collection_name: 'faces',
     description: 'Collection of face descriptors',
+    auto_id: true,
     fields: [
         {
+            name: 'id',
+            is_primary_key: true,
+            data_type: 5,
+        },
+        {
             name: 'user_id',
-            data_type: DataType.Int8
+            data_type: 2
         },
         {
             name: 'descriptor',
-            data_type: DataType.FloatVector,
+            data_type: 101,
             type_params: {
-                dim: 128
+                dim: "128"
             }
         }
     ]
 }
 
+const hasFacesCollection = await milvus.collectionManager.hasCollection({ collection_name: 'faces'})
 await milvus.collectionManager.createCollection(params)
 
 export default milvus
