@@ -44,21 +44,56 @@ const createDescriptors = async () => {
         }
     }))
 
-    return await milvus.dataManager.insert({
+    await milvus.dataManager.insert({
         collection_name: 'faces',
         fields_data: results
     })
+
+    const index_params = {
+        metric_type: 'L2',
+        index_type: 'FLAT'
+    }
+
+    return await milvus.indexManager.createIndex({
+        collection_name: 'faces',
+        field_name: 'descriptor',
+        extra_params: index_params
+    })
+
     //return await supabase.from('Descriptor').insert(results)
 }
+
+
+await milvus.collectionManager.loadCollection({
+    collection_name: 'faces',
+})
 
 const matchDescriptors = async (data) => {
     const { detections } = data
     if (!detections)
         return []
 
-    const temp = detections.map(detection => matcher.findBestMatch(detection))
-    console.log(temp)
-    return temp
+    const results = await milvus.dataManager.search({
+        collection_name: 'faces',
+        vectors: detections,
+        search_params: {
+            anns_field: 'descriptor',
+            topk: '1',
+            metric_type: 'L2',
+            params: ' '
+        },
+        vector_type: 101
+    })
+
+
+    console.log(results)
+    return results
+    
+    // const temp = detections.map(detection => matcher.findBestMatch(detection))
+    // console.log(temp)
+    // return temp
+
+
 }
 
 export {

@@ -48,3 +48,12 @@ app.get('/test2', async(req, res) => {
     const r = await milvus.collectionManager.getCollectionStatistics({ collection_name: 'faces' })
     res.json({ message: r })
 })
+
+app.get('/test3', async(req, res) => {
+    const r = await milvus.dataManager.query({ 
+        collection_name: 'faces', 
+        expr: 'id >= 0',
+        output_fields: ['id', 'user_id', 'descriptor']
+    })
+    res.json({ message: r })
+})
