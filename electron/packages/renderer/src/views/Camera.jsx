@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 import Webcam from 'react-webcam'
 import * as faceapi from '@vladmandic/face-api'
+import nearestVector, { findNearestVector } from 'ml-nearest-vector';
 import { createUseStyles } from 'react-jss'
 import Axios from '../tools/Axios'
 
@@ -49,8 +50,24 @@ const Camera = () => {
         })
 
         const results = res?.data || []
-        recogs.current = results
 
+        recogs.current = results.map((r, i) => {
+            if (r.score > 0.3)
+                return {
+                    user_id: 'Unknown',
+                    label: 'Unknown',
+                    score: r.score,
+                    descriptor: resizedDetections[i].descriptor
+                }
+
+            return {
+                id: r.id,
+                user_id: r.user_id,
+                score: r.score,
+                label: r.label,
+                descriptor: resizedDetections[i].descriptor,
+            }
+        })
         // results?.length > 0 && results.forEach((bestMatch, i) => {
         //     const box = resizedDetections[i].detection.box
         //     const text = `${bestMatch._label} (${bestMatch._distance.toFixed(2)})`
@@ -75,10 +92,13 @@ const Camera = () => {
         faceapi.draw.drawDetections(canvasRef.current, resizedDetections)
 
         recogs.current?.length > 0 && recogs.current.forEach((bestMatch, i) => {
-            if (!resizedDetections[i])
+            if (!bestMatch.descriptor)
                 return
-            const box = resizedDetections[i].detection.box
-            const text = `${bestMatch._label} (${bestMatch._distance.toFixed(2)})`
+            const index = nearestVector(currentDetections.current.map(d => Array.from(d.descriptor)), bestMatch.descriptor)
+            if (!resizedDetections[index])
+                return
+            const box = resizedDetections[index].detection.box
+            const text = `${bestMatch.label} (${bestMatch.score.toFixed(2)})`
             const drawBox = new faceapi.draw.DrawBox(box, { label: text })
             drawBox.draw(canvasRef.current)
         })

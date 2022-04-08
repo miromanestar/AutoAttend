@@ -38,7 +38,7 @@ const createDescriptors = async () => {
         const desc = await faceapi.detectSingleFace(image).withFaceLandmarks().withFaceDescriptor()
 
         return {
-            id: Math.random() * 1000000000,
+            id: Math.random() * 1000000000000,
             user_id: entry.id,
             descriptor: [ ...desc.descriptor ]
         }
@@ -60,7 +60,7 @@ const createDescriptors = async () => {
         extra_params: index_params
     })
 
-    return await milvus.dataManager.flushSync()
+    return await milvus.dataManager.flushSync({ collection_names: ['faces'] })
 
     //return await supabase.from('Descriptor').insert(results)
 }
@@ -75,8 +75,7 @@ const matchDescriptors = async (data) => {
     if (!detections)
         return []
 
-    console.log(detections)
-    const results = await milvus.dataManager.search({
+    let res = await milvus.dataManager.search({
         collection_name: 'faces',
         vectors: detections,
         search_params: {
@@ -89,15 +88,19 @@ const matchDescriptors = async (data) => {
         output_fields: ['id', 'user_id']
     })
 
-
-    console.log(results)
-    return results
+    return await Promise.all(res.results.map(async r => {
+        const user = await supabase.from('User').select().eq('id', r.user_id)
+        return {
+            score: r.score,
+            id: r.id,
+            user_id: r.user_id,
+            label: user?.data[0]?.name || 'Unknown'
+        }
+    }))
     
     // const temp = detections.map(detection => matcher.findBestMatch(detection))
     // console.log(temp)
     // return temp
-
-
 }
 
 export {

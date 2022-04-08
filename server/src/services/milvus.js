@@ -22,7 +22,7 @@ const params = {
             type_params: {
                 dim: "128"
             }
-        }
+        },
     ]
 }
 
