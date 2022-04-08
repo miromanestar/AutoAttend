@@ -45,7 +45,7 @@ app.get('/test', async (req, res) => {
 })
 
 app.get('/test2', async(req, res) => {
-    const r = await milvus.collectionManager.getCollectionStatistics({ collection_name: 'faces' })
+    const r = await milvus.collectionManager.dropCollection({ collection_name: 'faces' })
     res.json({ message: r })
 })
 

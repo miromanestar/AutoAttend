@@ -54,11 +54,13 @@ const createDescriptors = async () => {
         index_type: 'FLAT'
     }
 
-    return await milvus.indexManager.createIndex({
+    await milvus.indexManager.createIndex({
         collection_name: 'faces',
         field_name: 'descriptor',
         extra_params: index_params
     })
+
+    return await milvus.dataManager.flushSync()
 
     //return await supabase.from('Descriptor').insert(results)
 }
@@ -73,6 +75,7 @@ const matchDescriptors = async (data) => {
     if (!detections)
         return []
 
+    console.log(detections)
     const results = await milvus.dataManager.search({
         collection_name: 'faces',
         vectors: detections,
@@ -80,9 +83,10 @@ const matchDescriptors = async (data) => {
             anns_field: 'descriptor',
             topk: '1',
             metric_type: 'L2',
-            params: ' '
+            params: '{}'
         },
-        vector_type: 101
+        vector_type: 101,
+        output_fields: ['id', 'user_id']
     })
 
 
