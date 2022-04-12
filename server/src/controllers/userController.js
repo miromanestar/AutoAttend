@@ -4,7 +4,7 @@ import send from '../tools/send.js'
 export const getUsers = async (req, res) => {
     const query = req.query.query
 
-    if (query === '') {
+    if (!query) {
         const payload = await supabase.from('User').select()
         res.json(payload.data)
     } else {

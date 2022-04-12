@@ -3,6 +3,7 @@ import { createUseStyles } from 'react-jss'
 
 import { displayDate } from "../tools/Date"
 import SearchableCard from '../components/SearchableCard'
+import EventForm from '../components/EventForm'
 
 const useStyles = createUseStyles(theme => ({
     root: {
@@ -10,6 +11,10 @@ const useStyles = createUseStyles(theme => ({
         justifyContent: 'center',
         gap: theme.spacing(4),
         flexWrap: 'wrap'
+    },
+
+    form: {
+        width: '100%',
     }
 }))
 
@@ -18,6 +23,9 @@ const Home = () => {
 
     return (
         <div className={classes.root}>
+            <div className={classes.form}>
+                <EventForm />
+            </div>
             <SearchableCard
                 title="Events"
                 url="/events"
