@@ -8,11 +8,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@tensorflow/tfjs-node": "^3.13.0",
-    "canvas": "^2.9.0",
+    "@vladmandic/face-api": "^1.6.7",
+    "axios": "^0.26.1",
     "face-api.js": "^0.22.2",
+    "ml-nearest-vector": "^2.0.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "react-jss": "^10.9.0",
     "react-webcam": "^6.0.1"
   },
   "devDependencies": {

@@ -128,8 +128,8 @@ const Camera = () => {
         (async () => { 
             await faceapi.loadSsdMobilenetv1Model('/models')
             await faceapi.loadFaceLandmarkModel('/models')
-            await faceapi.loadFaceDetectionModel('./models')
-            await faceapi.loadFaceRecognitionModel('./models')
+            await faceapi.loadFaceDetectionModel('/models')
+            await faceapi.loadFaceRecognitionModel('/models')
 
             console.log('Models loaded')
 

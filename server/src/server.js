@@ -11,7 +11,7 @@ import identifyRouter from './routes/identify.js'
 import milvus from './services/milvus.js'
 
 const app = Express()
-const port = process.env.PORT || 3000
+const port = process.env.SERVER_PORT || 3000
 
 
 const auth = (req, res, next) => {
