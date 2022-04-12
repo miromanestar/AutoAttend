@@ -5,7 +5,7 @@ import nearestVector from 'ml-nearest-vector';
 import { createUseStyles } from 'react-jss'
 import Axios from '../tools/Axios'
 
-const useStyles = createUseStyles({
+const useStyles = createUseStyles(theme => ({
     root: {
         position: 'relative',
         width: '100%',
@@ -13,13 +13,14 @@ const useStyles = createUseStyles({
 
     webcam: {
         width: '100%',
+        borderRadius: theme.radius[2]
     },
 
     canvas: {
         position: 'absolute',
         left: 0
     }
-})
+}))
 
 const MAX_FRAMERATE = 60
 
@@ -32,12 +33,15 @@ const Camera = () => {
     const currentDetections = useRef([])
     const recogs = useRef([])
 
+    const timers = useRef([])
+
     const doRecognition = async () => {
-        //console.log(currentDetections.current)
         if (currentDetections.current.length === 0) {
-            setTimeout(() => {
+            const t = setTimeout(() => {
                 doRecognition()
             }, 300)
+
+            timers.current.push(t)
             return
         }
 
@@ -68,20 +72,14 @@ const Camera = () => {
                 descriptor: resizedDetections[i].descriptor,
             }
         })
-        // results?.length > 0 && results.forEach((bestMatch, i) => {
-        //     const box = resizedDetections[i].detection.box
-        //     const text = `${bestMatch._label} (${bestMatch._distance.toFixed(2)})`
-        //     const drawBox = new faceapi.draw.DrawBox(box, { label: text })
-        //     drawBox.draw(canvasRef.current)
-        // })
 
-        setTimeout(() => {
+        const timer = setTimeout(() => {
             doRecognition()
         }, 300)
+        timers.current.push(timer)
     }
 
     const doDetection = async () => {
-
         const detections = await faceapi.detectAllFaces(webcamRef.current.video, new faceapi.SsdMobilenetv1Options()).withFaceLandmarks().withFaceDescriptors()
         const videoEl = webcamRef.current.video
         const displaySize = { width: videoEl?.clientWidth || 0, height: videoEl?.clientHeight || 0 }
@@ -89,22 +87,25 @@ const Camera = () => {
         const resizedDetections = faceapi.resizeResults(detections, displaySize)
 
         currentDetections.current = resizedDetections
-        faceapi.draw.drawDetections(canvasRef.current, resizedDetections)
 
-        recogs.current?.length > 0 && recogs.current.forEach((bestMatch, i) => {
+        recogs.current?.length > 0 && recogs.current.forEach((bestMatch, _i) => {
             if (!bestMatch.descriptor)
                 return
             const index = nearestVector(currentDetections.current.map(d => Array.from(d.descriptor)), bestMatch.descriptor)
             if (!resizedDetections[index])
                 return
+            
             const box = resizedDetections[index].detection.box
             const text = `${bestMatch.label} (${bestMatch.score.toFixed(2)})`
             const drawBox = new faceapi.draw.DrawBox(box, { label: text })
             drawBox.draw(canvasRef.current)
         })
 
+        const ctx = canvasRef.current.getContext('2d')
+
+
+
         framerate.current.count++
-        let ctx = canvasRef.current.getContext('2d')
         ctx.font = '30px Arial'
         ctx.fillStyle = '#000'
         ctx.fillText(`${framerate.current.fr} FPS`, 10, 30)
@@ -114,13 +115,18 @@ const Camera = () => {
     const beginDetection = () => {
         console.log('Camera started')
         
-        setTimeout(async () => {
+        const timer = setTimeout(async () => {
             console.log('Beginning detection')
+            
             await doDetection()
+            
             doRecognition()
-            while (true)
+            
+            while (webcamRef.current)
                 await doDetection()
         }, 300)
+
+        timers.current.push(timer)
     }
 
     useEffect(() => {
@@ -137,10 +143,15 @@ const Camera = () => {
 
         console.log('Loading models...')
 
-        setInterval(() => {
+        const frCounter = setInterval(() => {
             framerate.current.fr = framerate.current.count
             framerate.current.count = 0
         }, 1000)
+
+        return () => {
+            clearInterval(frCounter)
+            timers.current.forEach(t => clearTimeout(t))
+        }
     }, [])
 
     return (
@@ -149,7 +160,7 @@ const Camera = () => {
                 className={classes.webcam}
                 audio={false}
                 ref={webcamRef}
-                onUserMedia={(stream) => beginDetection()}
+                onUserMedia={(_stream) => beginDetection()}
                 // videoConstraints={{
                 //     frameRate: { max: 20 },
                 // }}

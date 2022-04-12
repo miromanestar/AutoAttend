@@ -22,3 +22,22 @@ export const getEvent = async (req, res) => {
     const payload = await supabase.from('Event').select().eq('id', id)
     send(res, payload)
 }
+
+export const createEvent = async (req, res) => {
+    const data = req.body
+    console.log(data.scheduled)
+    const event = {
+        name: data.name,
+        host: data.owner_name,
+        description: data.description,
+        owner: data.owner_id,
+        created: new Date().toISOString(),
+        modified: new Date().toISOString(),
+        scheduled: new Date(data.scheduled).toISOString(),
+        status: 'scheduled'
+    }
+
+    const response = await supabase.from('Event').insert([event])
+    console.log(response)
+    res.json(response)
+}

@@ -8,6 +8,8 @@ const eventsRouter = Router()
 eventsRouter.get('/', events.getEvents)
 eventsRouter.get('/:id', events.getEvent)
 
+eventsRouter.post('/', events.createEvent)
+
 eventsRouter.use('/:id/identifications', identificationRouter)
 eventsRouter.use('/:id/participants', participantsRouter)
 

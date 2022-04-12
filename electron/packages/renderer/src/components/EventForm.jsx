@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
     Typography,
     Autocomplete,
@@ -7,9 +8,9 @@ import {
     FormControl,
     Button
 } from '@mui/material'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
 import { createUseStyles } from 'react-jss'
 
 import Axios from '../tools/Axios'
@@ -17,7 +18,7 @@ import Axios from '../tools/Axios'
 const useStyles = createUseStyles(theme => ({
     root: {
         display: 'flex',
-        justifyContent: 'center'
+        justifyContent: 'center',
     },
 
     control: {
@@ -39,12 +40,30 @@ const useStyles = createUseStyles(theme => ({
 
 const EventForm = () => {
     const classes = useStyles()
+    const navigate = useNavigate()
     
     const [options, setOptions] = useState([])
     const [loading, setLoading] = useState(true)
 
+    const [name, setName] = useState(null)
+    const [desc, setDesc] = useState(null)
     const [owner, setOwner] = useState(null)
     const [date, setDate] = useState(null)
+
+    const handleSubmit = async (e) => {
+        e.preventDefault()
+
+        const res = await Axios.post('/events', {
+            name: name,
+            description: desc,
+            owner_id: owner.id,
+            owner_name: owner.name,
+            scheduled: date
+        }).catch(err => console.log(err))
+        
+        if (res.data.status === 201)
+            navigate(`/events/${res.data.data[0].id}`)
+    }
 
     useEffect(async () => {
 
@@ -118,21 +137,34 @@ const EventForm = () => {
 
     return (
         <div className={classes.root}>
-            <form className={classes.form}>
+            <form className={classes.form} onSubmit={handleSubmit}>
                 <FormControl className={classes.control}>
-                    <Typography variant="h5">Create/Edit Event</Typography>
+                    <Typography textAlign={'center'} variant="h4">Create Event</Typography>
                     
-                    <div className={classes.group}>
-                        <TextField type="text" color="info" variant="outlined" name="name" label="Event Name" />
-                        <DatePicker />
-                    </div>
+                    <TextField 
+                        type="text" 
+                        color="info" 
+                        variant="outlined" 
+                        name="name" 
+                        label="Event Name"
+                        onChange={(e) => setName(e.target.value)}
+                    />
 
                     <div className={classes.group}>
                         <UsersField />
-                        <TextField multiline color="info" variant="outlined" name="description" label="Description" />
+                        <DatePicker />
                     </div>
 
-                    <Button type="submit" color="info" variant="contained">Submit</Button>
+                    <TextField 
+                        multiline 
+                        color="info" 
+                        variant="outlined" 
+                        name="description" 
+                        label="Description"
+                        onChange={(e) => setDesc(e.target.value)}
+                    />
+
+                    <Button sx={{ marginTop: '10px'}} type="submit" color="info" variant="contained">Submit</Button>
                 </FormControl>
             </form>
         </div>

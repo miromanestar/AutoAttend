@@ -18,6 +18,7 @@ import {
 } from '@mui/material'
 import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 import AccessTimeIcon from '@mui/icons-material/AccessTime'
+import RefreshIcon from '@mui/icons-material/Refresh';
 import { createUseStyles } from "react-jss"
 
 import { displayDate } from "../tools/Date"
@@ -44,7 +45,8 @@ const useStyles = createUseStyles(theme => ({
     },
 
     inputField: {
-        padding: theme.spacing(1, 2),
+        width: '100%',
+        paddingRight: theme.spacing(1),
     },
 
     cardHeader: {
@@ -57,19 +59,36 @@ const useStyles = createUseStyles(theme => ({
         justifyContent: "space-between"
     },
 
+    inputGrouping: {
+        padding: theme.spacing(1, 2),
+        display: 'flex',
+        width: '100%',
+        justifyContent: 'space-between'
+    },
+
+    refreshButton: {
+        width: '2em',
+
+        '& svg': {
+            fontSize: '1.5em'
+        }
+    },
+
     results: {
         padding: theme.spacing(1, 1),
-        maxheight: "800px",
+        maxHeight: "600px",
         overflowY: "auto",
 
         '&::-webkit-scrollbar': {
             width: '6px'
         },
         '&::-webkit-scrollbar-track': {
-            background: theme.colors.background.primary
+            background: theme.colors.background.primary,
+            borderRadius: theme.radius[1]
         },
         '&::-webkit-scrollbar-thumb': { 
-            background: theme.colors.background.highlight
+            background: theme.colors.background.highlight,
+            borderRadius: theme.radius[1]
         },
         scrollbarWidth: 'thin',
     },
@@ -83,7 +102,6 @@ const useStyles = createUseStyles(theme => ({
         textAlign: 'center',
         margin: theme.spacing(2, 1),
         padding: theme.spacing(1),
-        background: theme.colors.background.highlight,
     },
 
     option: {
@@ -118,8 +136,17 @@ const SearchableCard = ({ title, url, mapping }) => {
         setExpanded(key !== expanded ? key : false)
     }
 
-    const getData = async (url, callback) => {
-        const response = await Axios.get(url).catch(err => {
+    const refresh = () => {
+        setLoading(true)
+        const qurl = `${url}?query=${ input.join('&query=') }`
+        getData(qurl, data => {
+            setCards(data)
+            setLoading(false)
+        })
+    }
+
+    const getData = async (qurl, callback) => {
+        const response = await Axios.get(qurl).catch(err => {
             console.log(err)
             callback([])
         })
@@ -218,31 +245,43 @@ const SearchableCard = ({ title, url, mapping }) => {
                 <Paper className={classes.title} elevation={4}>
                     <Typography variant="h4">{ title }</Typography>
                 </Paper>
-                <Autocomplete
-                    className={classes.inputField}
-                    multiple
-                    freeSolo
-                    options={[]}
-                    onChange={(_e, val) => {
-                        setInput(val)
-                    }}
-                    renderInput={
-                        (params) => <TextField
-                            {...params}
-                            label="Search"
-                            color="info"
-                            InputProps={{
-                                ...params.InputProps,
-                                endAdornment: (
-                                    <>
-                                        {loading ? <CircularProgress color="inherit" size={20} /> : null}
-                                        {params.InputProps.endAdornment}
-                                    </>
-                                )
-                            }}
-                        />
-                    }
-                />
+
+                <div className={classes.inputGrouping}>
+                    <Autocomplete
+                        className={classes.inputField}
+                        multiple
+                        freeSolo
+                        options={[]}
+                        onChange={(_e, val) => {
+                            setInput(val)
+                        }}
+                        renderInput={
+                            (params) => <TextField
+                                {...params}
+                                label="Search"
+                                color="info"
+                                InputProps={{
+                                    ...params.InputProps,
+                                    endAdornment: (
+                                        <>
+                                            {loading ? <CircularProgress color="inherit" size={20} /> : null}
+                                            {params.InputProps.endAdornment}
+                                        </>
+                                    )
+                                }}
+                            />
+                        }
+                    />
+
+                    <IconButton 
+                        className={classes.refreshButton}
+                        onClick={refresh}
+                    >
+                        <RefreshIcon />
+                    </IconButton>
+                </div>
+
+
                 <div className={classes.results}>
                     { cards ? null :
                         [...Array(3)].map((_el, index) => 
@@ -253,9 +292,9 @@ const SearchableCard = ({ title, url, mapping }) => {
                     }
 
                     { cards && cards.length === 0 ?
-                        <Paper elevation={9} className={classes.noResults}>
+                        <div className={classes.noResults}>
                             <h3>No Results</h3>
-                        </Paper>
+                        </div>
                         
                         : null
                     }

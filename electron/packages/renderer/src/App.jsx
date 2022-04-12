@@ -6,6 +6,7 @@ import Home from './views/Home'
 import Event from './views/Event'
 
 import ResponsiveNavbar from './components/ResponsiveNavbar'
+import Footer from './components/Footer'
 
 const useStyles = createUseStyles(theme => ({
     root: {
@@ -26,6 +27,7 @@ const App = () => {
                     <Route path="/events" element={<Home />} />
                     <Route path="/events/:eventId" element={<Event />} />
                 </Routes>
+                <Footer />
             </HashRouter>
         </div>
     )
