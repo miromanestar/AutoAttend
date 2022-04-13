@@ -1,10 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
     Typography,
     TextField,
     FormControl,
-    Button
+    Button,
 } from '@mui/material'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
@@ -37,7 +37,7 @@ const useStyles = createUseStyles(theme => ({
     }
 }))
 
-const EventForm = () => {
+const EventForm = ({ event }) => {
     const classes = useStyles()
     const navigate = useNavigate()
 
@@ -61,6 +61,15 @@ const EventForm = () => {
             navigate(`/events/${res.data.data[0].id}`)
     }
 
+    useEffect(() => {
+        if (event) {
+            setName(event.name)
+            setDesc(event.description)
+            setOwner(event.User)
+            setDate(event.scheduled)
+        }
+    }, [])
+
     const DatePicker = () => (
         <LocalizationProvider dateAdapter={AdapterDateFns}>
             <DateTimePicker
@@ -77,7 +86,7 @@ const EventForm = () => {
         <div className={classes.root}>
             <form className={classes.form} onSubmit={handleSubmit}>
                 <FormControl className={classes.control}>
-                    <Typography textAlign={'center'} variant="h4">Create Event</Typography>
+                    <Typography textAlign={'center'} variant="h4">{ event ? 'Edit' : 'Create' } Event</Typography>
                     
                     <TextField 
                         type="text" 
@@ -85,6 +94,7 @@ const EventForm = () => {
                         variant="outlined" 
                         name="name" 
                         label="Event Name"
+                        value={name || ''}
                         onChange={(e) => setName(e.target.value)}
                     />
 
@@ -94,6 +104,7 @@ const EventForm = () => {
                             label="Owner"
                             name="owner"
                             getOptionLabel={(option) => option.name}
+                            defaultValue={event.User || ''}
                             onChange={(val) => setOwner(val)}
                         />
                         <DatePicker />
@@ -105,6 +116,7 @@ const EventForm = () => {
                         variant="outlined" 
                         name="description" 
                         label="Description"
+                        value={desc || ''}
                         onChange={(e) => setDesc(e.target.value)}
                     />
 

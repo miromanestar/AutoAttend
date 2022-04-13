@@ -90,11 +90,12 @@ const matchDescriptors = async (data) => {
 
     return await Promise.all(res.results.map(async r => {
         const user = await supabase.from('User').select().eq('id', r.user_id)
+
         return {
             score: r.score,
             id: r.id,
             user_id: r.user_id,
-            label: user?.data[0]?.name || 'Unknown'
+            label: user?.data ? user?.data[0]?.name : 'Unknown'
         }
     }))
     

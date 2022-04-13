@@ -7,7 +7,7 @@ import {
 import Axios from '../tools/Axios'
 
 
-const SearchInput = ({ url, getOptionLabel, onChange, label, name }) => {
+const SearchInput = ({ url, getOptionLabel, onChange, label, name, defaultValue }) => {
 
     const [value, setValue] = useState(null)
     const [options, setOptions] = useState([])
@@ -22,6 +22,9 @@ const SearchInput = ({ url, getOptionLabel, onChange, label, name }) => {
 
     useEffect(async () => {
         let isMounted = true
+
+        if (defaultValue)
+            setValue(defaultValue)
 
         if (!loading)
             return

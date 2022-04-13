@@ -19,7 +19,7 @@ export const getEvents = async (req, res) => {
 
 export const getEvent = async (req, res) => {
     const id = req.params.id
-    const payload = await supabase.from('Event').select().eq('id', id)
+    const payload = await supabase.from('Event').select('*, User!Event_owner_fkey(name, id)').eq('id', id)
     send(res, payload)
 }
 

@@ -10,9 +10,14 @@ import Axios from '../tools/Axios'
 import Camera from '../components/Camera'
 import ContentCard from '../components/ContentCard'
 import SearchInput from '../components/SearchInput'
+import EventForm from '../components/EventForm'
 
 const useStyles = createUseStyles(theme => ({
     root: {
+        
+    },
+
+    row: {
         display: 'flex',
         justifyContent: 'center',
         gap: theme.spacing(4),
@@ -109,29 +114,37 @@ const Event = () => {
 
     return (
         <div className={classes.root}>
-            <div className={classes.camera}>
-                <Camera />
+            
+            <div className={classes.row}>
+                <div className={classes.camera}>
+                    <Camera />
+                </div>
+                <ContentCard
+                    title="Participants"
+                    subtitle={ParticipantForm()}
+                    cls={classes.participants}
+                >
+                    {
+                        participants.map(p => (
+                            <div className={classes.participant} key={`p-${p.id}`}>
+                                <Typography variant="h6">{p.User.name} | Present: {p.present ? 'YES' : 'NO' }</Typography>
+                                <Button 
+                                    variant="contained" 
+                                    color="error"
+                                    onClick={() => deleteParticipant(p.id)}
+                                >
+                                    Remove
+                                </Button>
+                            </div>
+                        ))
+                    }
+                </ContentCard>   
             </div>
-            <ContentCard
-                title="Participants"
-                subtitle={ParticipantForm()}
-                cls={classes.participants}
-            >
-                {
-                    participants.map(p => (
-                        <div className={classes.participant} key={`p-${p.id}`}>
-                            <Typography variant="h6">{p.User.name} | Present: {p.present ? 'YES' : 'NO' }</Typography>
-                            <Button 
-                                variant="contained" 
-                                color="error"
-                                onClick={() => deleteParticipant(p.id)}
-                            >
-                                Remove
-                            </Button>
-                        </div>
-                    ))
-                }
-            </ContentCard>   
+
+            <div className={classes.row}>
+                <EventForm event={event} />
+            </div>
+            
         </div>
     )
 }

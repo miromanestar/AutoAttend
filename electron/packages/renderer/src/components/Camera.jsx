@@ -80,6 +80,9 @@ const Camera = () => {
 
     const doDetection = async () => {
 
+        if (!webcamRef.current)
+            return
+            
         const detections = await faceapi.detectAllFaces(webcamRef.current.video, new faceapi.SsdMobilenetv1Options()).withFaceLandmarks().withFaceDescriptors()
         const videoEl = webcamRef.current.video
         const displaySize = { width: videoEl?.clientWidth || 0, height: videoEl?.clientHeight || 0 }
