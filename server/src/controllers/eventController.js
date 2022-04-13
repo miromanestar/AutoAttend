@@ -38,6 +38,5 @@ export const createEvent = async (req, res) => {
     }
 
     const response = await supabase.from('Event').insert([event])
-    console.log(response)
     res.json(response)
 }

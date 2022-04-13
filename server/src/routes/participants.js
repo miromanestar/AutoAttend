@@ -6,4 +6,9 @@ const participantsRouter = Router({ mergeParams: true })
 participantsRouter.get('/', participants.getParticipants)
 participantsRouter.get('/:participantId', participants.getParticipant)
 
+participantsRouter.post('/', participants.addParticipant)
+
+participantsRouter.delete('/', participants.deleteParticipants)
+participantsRouter.delete('/:participantId', participants.deleteParticipant)
+
 export default participantsRouter
