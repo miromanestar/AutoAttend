@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
+import {
+    Typography,
+    Button
+} from '@mui/material'
 import { createUseStyles } from 'react-jss'
 import Axios from '../tools/Axios'
 
@@ -43,6 +47,7 @@ const Event = () => {
             <div className={classes.camera}>
                 <Camera />
             </div>
+            <Button variant="outlined">Start</Button>
         </div>
     )
 }

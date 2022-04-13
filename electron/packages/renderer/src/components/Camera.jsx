@@ -22,8 +22,6 @@ const useStyles = createUseStyles(theme => ({
     }
 }))
 
-const MAX_FRAMERATE = 60
-
 const Camera = () => {
     const classes = useStyles()
 
@@ -34,6 +32,7 @@ const Camera = () => {
     const recogs = useRef([])
 
     const timers = useRef([])
+    const intervals = useRef([])
 
     const doRecognition = async () => {
         if (currentDetections.current.length === 0) {
@@ -80,36 +79,14 @@ const Camera = () => {
     }
 
     const doDetection = async () => {
+
         const detections = await faceapi.detectAllFaces(webcamRef.current.video, new faceapi.SsdMobilenetv1Options()).withFaceLandmarks().withFaceDescriptors()
         const videoEl = webcamRef.current.video
         const displaySize = { width: videoEl?.clientWidth || 0, height: videoEl?.clientHeight || 0 }
-        faceapi.matchDimensions(canvasRef.current, displaySize)
         const resizedDetections = faceapi.resizeResults(detections, displaySize)
 
         currentDetections.current = resizedDetections
-
-        recogs.current?.length > 0 && recogs.current.forEach((bestMatch, _i) => {
-            if (!bestMatch.descriptor)
-                return
-            const index = nearestVector(currentDetections.current.map(d => Array.from(d.descriptor)), bestMatch.descriptor)
-            if (!resizedDetections[index])
-                return
-            
-            const box = resizedDetections[index].detection.box
-            const text = `${bestMatch.label} (${bestMatch.score.toFixed(2)})`
-            const drawBox = new faceapi.draw.DrawBox(box, { label: text })
-            drawBox.draw(canvasRef.current)
-        })
-
-        const ctx = canvasRef.current.getContext('2d')
-
-
-
         framerate.current.count++
-        ctx.font = '30px Arial'
-        ctx.fillStyle = '#000'
-        ctx.fillText(`${framerate.current.fr} FPS`, 10, 30)
-
     }
 
     const beginDetection = () => {
@@ -121,12 +98,43 @@ const Camera = () => {
             await doDetection()
             
             doRecognition()
-            
-            while (webcamRef.current)
+
+            const interval = setInterval(async () => {
                 await doDetection()
+            }, 33)
+
+            intervals.current.push(interval)
         }, 300)
 
         timers.current.push(timer)
+    }
+
+    const drawStuff = () => {
+        const ctx = canvasRef.current.getContext('2d')
+
+        const recs = recogs.current
+        const dets = currentDetections.current
+
+        const videoEl = webcamRef.current.video
+        const displaySize = { width: videoEl?.clientWidth || 0, height: videoEl?.clientHeight || 0 }
+        faceapi.matchDimensions(canvasRef.current, displaySize)
+
+        recs?.length > 0 && recs.forEach((bestMatch, _i) => {
+            if (!bestMatch.descriptor)
+                return
+            const index = nearestVector(currentDetections.current.map(d => Array.from(d.descriptor)), bestMatch.descriptor)
+            if (!dets[index])
+                return
+            
+            const box = dets[index].detection.box
+            const text = `${bestMatch.label} (${bestMatch.score.toFixed(2)})`
+            const drawBox = new faceapi.draw.DrawBox(box, { label: text })
+            drawBox.draw(canvasRef.current)
+        })
+
+        ctx.font = '30px Arial'
+        ctx.fillStyle = '#000'
+        ctx.fillText(`${framerate.current.fr} FPS`, 10, 30)
     }
 
     useEffect(() => {
@@ -148,8 +156,14 @@ const Camera = () => {
             framerate.current.count = 0
         }, 1000)
 
+        const drawInterval = setInterval(() => {
+            drawStuff()
+        }, 16)
+
+        intervals.current.push(frCounter, drawInterval)
+
         return () => {
-            clearInterval(frCounter)
+            intervals.current.forEach(i => clearInterval(i))
             timers.current.forEach(t => clearTimeout(t))
         }
     }, [])
@@ -161,9 +175,6 @@ const Camera = () => {
                 audio={false}
                 ref={webcamRef}
                 onUserMedia={(_stream) => beginDetection()}
-                // videoConstraints={{
-                //     frameRate: { max: 20 },
-                // }}
             />
             <canvas className={classes.canvas} ref={canvasRef} />
         </div >
