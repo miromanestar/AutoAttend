@@ -1,6 +1,12 @@
 import { MilvusClient } from '@zilliz/milvus2-sdk-node'
 
-const milvus = new MilvusClient(process.env.MILVUS_URL)
+let milvus = null
+
+try {
+    milvus = new MilvusClient(process.env.MILVUS_URL)
+} catch (e) {
+    console.error('Could not connect to Milvus', e)
+}
 
 const params = {
     collection_name: 'faces',

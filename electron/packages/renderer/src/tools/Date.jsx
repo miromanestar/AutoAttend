@@ -7,7 +7,7 @@ const displayDate = (d) => {
     const today = moment()
     const date = moment(d)
 
-    if (today.diff(date, 'days') > 0)
+    if (today.diff(date, 'days') < 1)
         return moment(d).format('h:mm A')
 
     return moment(d).format('MM/DD/YY, h:mm A')

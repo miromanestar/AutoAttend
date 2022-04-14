@@ -59,6 +59,7 @@ const Event = () => {
     const [detections, setDetections] = useState([])
     const [loading, setLoading] = useState(true)
 
+    const [run, setRun] = useState(false)
     const [newParticipant, setNewParticipant] = useState(null)
 
     const addParticipant = async (e) => {
@@ -117,7 +118,17 @@ const Event = () => {
             
             <div className={classes.row}>
                 <div className={classes.camera}>
-                    <Camera />
+                    <Camera 
+                        idents={(d) => setDetections(d)}
+                        start={false}
+                    />
+                    <Button
+                        variant="contained"
+                        color="warning"
+                        onClick={() => setRun(!run)}
+                    >
+                        {run ? 'STOP' : 'START'}
+                    </Button>
                 </div>
                 <ContentCard
                     title="Participants"

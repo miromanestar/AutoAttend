@@ -104,7 +104,7 @@ const EventForm = ({ event }) => {
                             label="Owner"
                             name="owner"
                             getOptionLabel={(option) => option.name}
-                            defaultValue={event.User || ''}
+                            defaultValue={event?.User || ''}
                             onChange={(val) => setOwner(val)}
                         />
                         <DatePicker />

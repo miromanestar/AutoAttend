@@ -22,7 +22,7 @@ const useStyles = createUseStyles(theme => ({
     }
 }))
 
-const Camera = () => {
+const Camera = ({ idents, run }) => {
     const classes = useStyles()
 
     const webcamRef = useRef(null)
@@ -72,6 +72,8 @@ const Camera = () => {
             }
         })
 
+        idents(recogs.current)
+
         const timer = setTimeout(() => {
             doRecognition()
         }, 300)
@@ -113,6 +115,7 @@ const Camera = () => {
     }
 
     const drawStuff = () => {
+
         const ctx = canvasRef.current.getContext('2d')
 
         const recs = recogs.current
@@ -140,8 +143,7 @@ const Camera = () => {
         ctx.fillText(`${framerate.current.fr} FPS`, 10, 30)
     }
 
-    useEffect(() => {
-        
+    useEffect(() => {        
         (async () => { 
             await faceapi.loadSsdMobilenetv1Model('/models')
             await faceapi.loadFaceLandmarkModel('/models')
@@ -177,7 +179,7 @@ const Camera = () => {
                 className={classes.webcam}
                 audio={false}
                 ref={webcamRef}
-                onUserMedia={(_stream) => beginDetection()}
+                onUserMedia={(_stream) => run && beginDetection()}
             />
             <canvas className={classes.canvas} ref={canvasRef} />
         </div >
