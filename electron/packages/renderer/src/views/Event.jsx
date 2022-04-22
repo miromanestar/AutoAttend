@@ -3,7 +3,8 @@ import { useParams } from 'react-router-dom'
 import {
     Typography,
     Button,
-    CircularProgress
+    CircularProgress,
+    Icon
 } from '@mui/material'
 import { createUseStyles } from 'react-jss'
 import Axios from '../tools/Axios'
@@ -71,7 +72,7 @@ const Event = () => {
     const [loading, setLoading] = useState(true)
 
     const [run, setRun] = useState(false)
-    const [startWaiting, setStartWaiting] = useState(false)
+    const [waiting, setWaiting] = useState(false)
     const [newParticipant, setNewParticipant] = useState(null)
 
     const addParticipant = async (e) => {
@@ -101,7 +102,6 @@ const Event = () => {
 
     const handleDetections = (dets) => {
         const newDets = detections
-
         dets.forEach(d => {
             const count = newDets[d.id]?.count + 1 || 1
             const total_score = newDets[d.id]?.total_score + d.score || d.score
@@ -113,7 +113,7 @@ const Event = () => {
             }
         })
 
-        setDetections(newDets)
+        setDetections({...newDets})
     }
 
     useEffect(async () => {
@@ -148,15 +148,15 @@ const Event = () => {
                 <div className={classes.camera}>
                     <Camera 
                         idents={(d) => handleDetections(d)}
-                        modelLoaded={() => console.log('IT RUNNING')}
+                        modelLoaded={() => setWaiting(false)}
                         isRunning={run}
                     />
                     <Button
                         variant="contained"
                         color="warning"
-                        onClick={() => setRun(!run)}
+                        onClick={() => { !run && setWaiting(true); setRun(!run); }}
                     >
-                        {run ? 'STOP' : 'START'}
+                        { waiting ? <CircularProgress size={24} /> : run ? 'STOP' : 'START' }
                     </Button>
                 </div>
                 <ContentCard
@@ -167,13 +167,22 @@ const Event = () => {
                     {
                         participants.map(p => (
                             <div className={classes.participant} key={`p-${p.id}`}>
-                                <Typography variant="h6">{p.User.name} | Present: {p.present ? 'YES' : 'NO' }</Typography>
+                                <Typography 
+                                    sx={{ 
+                                        display: 'flex', 
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between'
+                                    }} 
+                                    variant="h6"
+                                >
+                                    <PersonIcon /> &nbsp; {p.User.name} {p.present ? <CheckIcon /> : <CloseIcon /> }
+                                </Typography>
                                 <Button 
                                     variant="contained" 
                                     color="error"
                                     onClick={() => deleteParticipant(p.id)}
                                 >
-                                    Remove
+                                    <CloseIcon />
                                 </Button>
                             </div>
                         ))
@@ -194,7 +203,7 @@ const Event = () => {
                                 return
                             return (
                                 <div className={classes.identification} key={`d-${d}`}>
-                                    {label} | {avg_score}
+                                    {label} | {(100 - avg_score * 100).toFixed(0)}% | {count}
                                 </div>
                             )
                         })

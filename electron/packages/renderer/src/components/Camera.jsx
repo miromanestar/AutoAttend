@@ -87,9 +87,10 @@ const Camera = ({ idents, isRunning, modelLoaded }) => {
             const detections = await faceapi.detectAllFaces(webcamRef.current.video, new faceapi.SsdMobilenetv1Options()).withFaceLandmarks().withFaceDescriptors()
             if (firstRun.current) {
                 firstRun.current = false
-                modelLoaded()
                 console.log('Detection models compiled')
             }
+
+            modelLoaded()
             
             const videoEl = webcamRef.current.video
             const displaySize = { width: videoEl?.clientWidth || 0, height: videoEl?.clientHeight || 0 }
