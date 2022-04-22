@@ -56,7 +56,7 @@ const Event = () => {
 
     const [event, setEvent] = useState(null)
     const [participants, setParticipants] = useState([])
-    const [detections, setDetections] = useState([])
+    const [detections, setDetections] = useState({})
     const [loading, setLoading] = useState(true)
 
     const [run, setRun] = useState(false)
@@ -87,8 +87,23 @@ const Event = () => {
         getParticipants()
     }
 
-    useEffect(async () => {
+    const handleDetections = (dets) => {
+        const newDets = detections
 
+        dets.forEach(d => {
+            const count = newDets[d.id]?.count + 1 || 1
+            const total_score = newDets[d.id]?.score + d.score || d.score
+            newDets[d.id] = { 
+                ...d, 
+                count: count,
+                avg_score: total_score / count
+            }
+        })
+
+        console.log(newDets)
+    }
+
+    useEffect(async () => {
         Promise.all([getEvent(), getParticipants()]).then(() => setLoading(false))
     }, [])
 
@@ -119,8 +134,8 @@ const Event = () => {
             <div className={classes.row}>
                 <div className={classes.camera}>
                     <Camera 
-                        idents={(d) => setDetections(d)}
-                        start={false}
+                        idents={(d) => handleDetections(d)}
+                        isRunning={run}
                     />
                     <Button
                         variant="contained"
@@ -154,6 +169,19 @@ const Event = () => {
 
             <div className={classes.row}>
                 <EventForm event={event} />
+                <ContentCard
+                    title="Detections"
+                    cls={classes.identifications}
+                >
+                    {
+                        Object.keys(detections).map(d => {
+                            //const { id, label, score }
+                            return (
+                                <></>
+                            )
+                        })
+                    }
+                </ContentCard>
             </div>
             
         </div>

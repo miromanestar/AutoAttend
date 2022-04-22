@@ -22,11 +22,12 @@ const useStyles = createUseStyles(theme => ({
     }
 }))
 
-const Camera = ({ idents, run }) => {
+const Camera = ({ idents, isRunning }) => {
     const classes = useStyles()
 
     const webcamRef = useRef(null)
     const canvasRef = useRef(null)
+    const isRunningRef = useRef(false)
     const framerate = useRef({ fr: 0, count: 0})
     const currentDetections = useRef([])
     const recogs = useRef([])
@@ -81,16 +82,14 @@ const Camera = ({ idents, run }) => {
     }
 
     const doDetection = async () => {
+        if (webcamRef.current && isRunningRef.current) {
+            const detections = await faceapi.detectAllFaces(webcamRef.current.video, new faceapi.SsdMobilenetv1Options()).withFaceLandmarks().withFaceDescriptors()
+            const videoEl = webcamRef.current.video
+            const displaySize = { width: videoEl?.clientWidth || 0, height: videoEl?.clientHeight || 0 }
+            const resizedDetections = faceapi.resizeResults(detections, displaySize)
+            currentDetections.current = resizedDetections
+        }
 
-        if (!webcamRef.current)
-            return
-            
-        const detections = await faceapi.detectAllFaces(webcamRef.current.video, new faceapi.SsdMobilenetv1Options()).withFaceLandmarks().withFaceDescriptors()
-        const videoEl = webcamRef.current.video
-        const displaySize = { width: videoEl?.clientWidth || 0, height: videoEl?.clientHeight || 0 }
-        const resizedDetections = faceapi.resizeResults(detections, displaySize)
-
-        currentDetections.current = resizedDetections
         framerate.current.count++
     }
 
@@ -98,8 +97,6 @@ const Camera = ({ idents, run }) => {
         console.log('Camera started')
         
         const timer = setTimeout(async () => {
-            console.log('Beginning detection')
-            
             await doDetection()
             
             doRecognition()
@@ -115,6 +112,10 @@ const Camera = ({ idents, run }) => {
     }
 
     const drawStuff = () => {
+        if (!isRunningRef.current) {
+            recogs.current = []
+            currentDetections.current = []
+        }
 
         const ctx = canvasRef.current.getContext('2d')
 
@@ -173,13 +174,23 @@ const Camera = ({ idents, run }) => {
         }
     }, [])
 
+    useEffect(() => {
+        isRunningRef.current = isRunning
+
+        if (!isRunning)
+            return
+
+        console.log('Beginning detection')
+
+    }, [isRunning])
+
     return (
         <div className={classes.root}>
             <Webcam
                 className={classes.webcam}
                 audio={false}
                 ref={webcamRef}
-                onUserMedia={(_stream) => run && beginDetection()}
+                onUserMedia={(_stream) => beginDetection()}
             />
             <canvas className={classes.canvas} ref={canvasRef} />
         </div >

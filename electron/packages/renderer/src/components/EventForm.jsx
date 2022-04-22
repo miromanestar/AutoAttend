@@ -73,11 +73,12 @@ const EventForm = ({ event }) => {
     const DatePicker = () => (
         <LocalizationProvider dateAdapter={AdapterDateFns}>
             <DateTimePicker
-                renderInput={(props) => <TextField {...props} color="info" />}
+                renderInput={(props) => <TextField {...props} error={false} color="info" />}
                 label="Scheduled Time"
                 value={date}
                 onChange={(val) => setDate(val)}
                 minDateTime={new Date()}
+                clearable
             />
         </LocalizationProvider>
     )
