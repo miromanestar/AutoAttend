@@ -2,10 +2,15 @@ import React, { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import {
     Typography,
-    Button
+    Button,
+    CircularProgress
 } from '@mui/material'
 import { createUseStyles } from 'react-jss'
 import Axios from '../tools/Axios'
+
+import PersonIcon from '@mui/icons-material/Person'
+import CheckIcon from '@mui/icons-material/Check'
+import CloseIcon from '@mui/icons-material/Close'
 
 import Camera from '../components/Camera'
 import ContentCard from '../components/ContentCard'
@@ -22,7 +27,8 @@ const useStyles = createUseStyles(theme => ({
         justifyContent: 'center',
         gap: theme.spacing(4),
         padding: theme.spacing(2),
-        flexWrap: 'wrap'
+        flexWrap: 'wrap',
+        marginBottom: theme.spacing(4)
     },
 
     camera: {
@@ -46,6 +52,11 @@ const useStyles = createUseStyles(theme => ({
         display: 'flex',
         justifyContent: 'space-between',
         margin: theme.spacing(2)
+    },
+
+    identifications: {
+        justifyContent: 'space-between',
+        flexGrow: 1
     }
 }))
 
@@ -60,6 +71,7 @@ const Event = () => {
     const [loading, setLoading] = useState(true)
 
     const [run, setRun] = useState(false)
+    const [startWaiting, setStartWaiting] = useState(false)
     const [newParticipant, setNewParticipant] = useState(null)
 
     const addParticipant = async (e) => {
@@ -92,15 +104,16 @@ const Event = () => {
 
         dets.forEach(d => {
             const count = newDets[d.id]?.count + 1 || 1
-            const total_score = newDets[d.id]?.score + d.score || d.score
+            const total_score = newDets[d.id]?.total_score + d.score || d.score
             newDets[d.id] = { 
                 ...d, 
                 count: count,
+                total_score: total_score,
                 avg_score: total_score / count
             }
         })
 
-        console.log(newDets)
+        setDetections(newDets)
     }
 
     useEffect(async () => {
@@ -135,6 +148,7 @@ const Event = () => {
                 <div className={classes.camera}>
                     <Camera 
                         idents={(d) => handleDetections(d)}
+                        modelLoaded={() => console.log('IT RUNNING')}
                         isRunning={run}
                     />
                     <Button
@@ -175,9 +189,13 @@ const Event = () => {
                 >
                     {
                         Object.keys(detections).map(d => {
-                            //const { id, label, score }
+                            const { label, count, avg_score } = detections[d]
+                            if (label === 'Unknown')
+                                return
                             return (
-                                <></>
+                                <div className={classes.identification} key={`d-${d}`}>
+                                    {label} | {avg_score}
+                                </div>
                             )
                         })
                     }

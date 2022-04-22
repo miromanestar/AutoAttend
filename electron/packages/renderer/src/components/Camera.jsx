@@ -22,12 +22,13 @@ const useStyles = createUseStyles(theme => ({
     }
 }))
 
-const Camera = ({ idents, isRunning }) => {
+const Camera = ({ idents, isRunning, modelLoaded }) => {
     const classes = useStyles()
 
     const webcamRef = useRef(null)
     const canvasRef = useRef(null)
     const isRunningRef = useRef(false)
+    const firstRun = useRef(true)
     const framerate = useRef({ fr: 0, count: 0})
     const currentDetections = useRef([])
     const recogs = useRef([])
@@ -84,6 +85,12 @@ const Camera = ({ idents, isRunning }) => {
     const doDetection = async () => {
         if (webcamRef.current && isRunningRef.current) {
             const detections = await faceapi.detectAllFaces(webcamRef.current.video, new faceapi.SsdMobilenetv1Options()).withFaceLandmarks().withFaceDescriptors()
+            if (firstRun.current) {
+                firstRun.current = false
+                modelLoaded()
+                console.log('Detection models compiled')
+            }
+            
             const videoEl = webcamRef.current.video
             const displaySize = { width: videoEl?.clientWidth || 0, height: videoEl?.clientHeight || 0 }
             const resizedDetections = faceapi.resizeResults(detections, displaySize)
