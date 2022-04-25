@@ -8,6 +8,8 @@ participantsRouter.get('/:participantId', participants.getParticipant)
 
 participantsRouter.post('/', participants.addParticipant)
 
+participantsRouter.patch('/:participantId', participants.editParticipant)
+
 participantsRouter.delete('/', participants.deleteParticipants)
 participantsRouter.delete('/:participantId', participants.deleteParticipant)
 

@@ -10,6 +10,8 @@ eventsRouter.get('/:id', events.getEvent)
 
 eventsRouter.post('/', events.createEvent)
 
+eventsRouter.patch('/:id', events.editEvent)
+
 eventsRouter.use('/:id/identifications', identificationRouter)
 eventsRouter.use('/:id/participants', participantsRouter)
 

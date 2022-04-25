@@ -73,7 +73,12 @@ const theme = createTheme({
         },
 
         warning: {
-            main: '#BF616A',
+            main: '#ffa726',
+            contrastText: '#fff'
+        },
+
+        success: {
+            main: '#66bb6a',
             contrastText: '#fff'
         },
 

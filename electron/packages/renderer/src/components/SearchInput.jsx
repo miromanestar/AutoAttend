@@ -40,12 +40,13 @@ const SearchInput = ({ url, getOptionLabel, onChange, label, name, defaultValue 
 
             if ( !(res.data instanceof Array) )
                 setOptions([])
-
+ 
             setOptions(res.data || [])
             setLoading(false)
 
             return () => isMounted = false
         })()
+        
     }, [])
 
     return (
@@ -54,6 +55,7 @@ const SearchInput = ({ url, getOptionLabel, onChange, label, name, defaultValue 
             loading={loading}
             options={options}
             getOptionLabel={(option) => getOptionLabel(option)}
+            isOptionEqualToValue={(option, val) => option.id === val.id}
             onChange={(_e, val) => handleChange(val)}
             value={value}
             selectOnFocus={true}
