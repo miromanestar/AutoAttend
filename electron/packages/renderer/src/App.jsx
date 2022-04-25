@@ -4,6 +4,7 @@ import { createUseStyles } from 'react-jss'
 
 import Home from './views/Home'
 import Event from './views/Event'
+import User from './views/User'
 
 import ResponsiveNavbar from './components/ResponsiveNavbar'
 import Footer from './components/Footer'
@@ -24,8 +25,12 @@ const App = () => {
                 <ResponsiveNavbar />
                 <Routes>
                     <Route path="/" element={<Home />} />
+                    
                     <Route path="/events" element={<Home />} />
                     <Route path="/events/:eventId" element={<Event />} />
+                    
+                    <Route path="/users" element={<Home />} />
+                    <Route path="/users/:userId" element={<User />} />
                 </Routes>
                 <Footer />
             </HashRouter>

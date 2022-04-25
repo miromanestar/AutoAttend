@@ -329,7 +329,13 @@ const Event = () => {
                     <Typography variant="h6" textAlign="right">
                         {(() => {
                             const numPresent = participants.reduce((a, b) => b.present ? ++a : a, 0)
-                            return `${numPresent}/${participants.length} present (${Math.round(numPresent / participants.length * 100)}%)`
+                            
+                            if (participants.length === 0)
+                                return '0 participants'
+                            else
+                                return `${numPresent}/${participants.length} present (${
+                                    Math.round(numPresent / participants.length * 100)
+                                }%)`
                         })()}
                     </Typography>
                     {

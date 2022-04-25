@@ -25,7 +25,7 @@ export const getEvent = async (req, res) => {
 
 export const createEvent = async (req, res) => {
     const data = req.body
-    console.log(data.scheduled)
+
     const event = {
         name: data.name,
         host: data.owner_name,
@@ -44,13 +44,19 @@ export const createEvent = async (req, res) => {
 export const editEvent = async (req, res) => {
     const { id } = req.params
     const data = req.body
-
+    console.log(data)
     const response = await supabase.from('Event')
         .update({ 
-            ...req.body, 
+            ...data, 
             modified: new Date().toISOString() 
         })
         .eq('id', id)
 
+    res.json(response)
+}
+
+export const deleteEvent = async (req, res) => {
+    const { id } = req.params
+    const response = await supabase.from('Event').delete().eq('id', id)
     res.json(response)
 }

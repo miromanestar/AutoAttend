@@ -92,7 +92,7 @@ const Camera = ({ idents, isRunning, modelLoaded }) => {
             }
 
             modelLoaded()
-            
+    
             const videoEl = webcamRef.current.video
             const displaySize = { width: videoEl?.clientWidth || 0, height: videoEl?.clientHeight || 0 }
             const resizedDetections = faceapi.resizeResults(detections, displaySize)
@@ -153,7 +153,8 @@ const Camera = ({ idents, isRunning, modelLoaded }) => {
         ctx.fillText(`${framerate.current.fr} FPS`, 10, 30)
     }
 
-    useEffect(() => {        
+    useEffect(() => {
+
         (async () => { 
             await faceapi.loadSsdMobilenetv1Model('/models')
             await faceapi.loadFaceLandmarkModel('/models')

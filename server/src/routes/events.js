@@ -12,6 +12,8 @@ eventsRouter.post('/', events.createEvent)
 
 eventsRouter.patch('/:id', events.editEvent)
 
+eventsRouter.delete('/:id', events.deleteEvent)
+
 eventsRouter.use('/:id/identifications', identificationRouter)
 eventsRouter.use('/:id/participants', participantsRouter)
 
