@@ -44,7 +44,7 @@ export const createEvent = async (req, res) => {
 export const editEvent = async (req, res) => {
     const { id } = req.params
     const data = req.body
-    console.log(data)
+
     const response = await supabase.from('Event')
         .update({ 
             ...data, 

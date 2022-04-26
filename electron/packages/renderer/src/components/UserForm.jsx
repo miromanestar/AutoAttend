@@ -15,6 +15,8 @@ import {
 import { createUseStyles } from 'react-jss'
 import Axios from '../tools/Axios'
 
+import PersonRemoveIcon from '@mui/icons-material/PersonRemove'
+
 const useStyles = createUseStyles(theme => ({
     root: {
         display: 'flex',
@@ -57,7 +59,7 @@ const UserForm = ({ user }) => {
     const handleSubmit = async (e) => {
         e.preventDefault()
         
-        setLoading('submit')
+        setLoading(true)
 
         let res = null
         if (user)
@@ -74,21 +76,19 @@ const UserForm = ({ user }) => {
                 role: role
             }).catch(err => console.log(err))
         
+        setStatus(res?.data.status || res.status)
+        setOpen('submit')
         setLoading(false)
-
-        setStatus(res.status)
-        setOpen(true)
     }
 
     const handleDelete = async () => {
-        setLoading('delete')
+        setLoading(true)
 
         const res = await Axios.delete(`/users/${user.id}`).catch(err => console.log(err))
 
-        setLoading(false)
-
         setStatus(res.status)
-        setOpen(true)
+        setOpen('delete')
+        setLoading(false)
 
         if (res.status === 200)
             setTimeout(() => navigate('/users'), 2000)
@@ -136,9 +136,10 @@ const UserForm = ({ user }) => {
                     />
 
                     <FormControl fullWidth>
-                        <InputLabel id="input-role">Role</InputLabel>
+                        <InputLabel id="input-role" color="info">Role</InputLabel>
                         <Select
                             labelId="input-role"
+                            color="info"
                             value={role || ''}
                             label="Role"
                             onChange={(e) => setRole(e.target.value)}
@@ -169,7 +170,7 @@ const UserForm = ({ user }) => {
                                 variant="contained"
                                 onClick={handleDelete}
                             >
-                                Remove
+                                <PersonRemoveIcon />
                                 { loading === 'delete' && <CircularProgress size={20} /> }
                             </Button>
                         }
@@ -180,12 +181,12 @@ const UserForm = ({ user }) => {
 
             {open && 
                 <Snackbar
-                    open={open}
+                    open={open ? true : false}
                     autoHideDuration={3000}
                     onClose={handleClose}
                 >
-                    { status === 200 ?
-                        <Alert severity="success" onClose={handleClose}>{ loading === 'submit' ? 'User succsesfully updated' : 'User successfully deleted' }</Alert>
+                    { status === 201 || status === 200 ?
+                        <Alert severity="success" onClose={handleClose}>{ open === 'submit' ? 'User successfully updated' : 'User successfully deleted' }</Alert>
                         :
                         <Alert severity="error" onClose={handleClose}>Error updating user</Alert>
                     }

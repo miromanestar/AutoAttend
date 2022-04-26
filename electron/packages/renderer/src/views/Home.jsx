@@ -4,6 +4,7 @@ import { createUseStyles } from 'react-jss'
 import { displayDate } from "../tools/Date"
 import SearchableCard from '../components/SearchableCard'
 import EventForm from '../components/EventForm'
+import UserForm from '../components/UserForm'
 
 const useStyles = createUseStyles(theme => ({
     root: {
@@ -14,7 +15,10 @@ const useStyles = createUseStyles(theme => ({
     },
 
     form: {
+        display: 'flex',
         width: '100%',
+        justifyContent: 'center',
+        gap: theme.spacing(4),
     }
 }))
 
@@ -25,6 +29,7 @@ const Home = () => {
         <div className={classes.root}>
             <div className={classes.form}>
                 <EventForm />
+                <UserForm />
             </div>
             <SearchableCard
                 title="Events"

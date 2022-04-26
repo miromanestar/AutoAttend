@@ -17,6 +17,8 @@ usersRouter.get('/:id/images', users.getUserImages)
 
 usersRouter.post('/:id/images', users.createUserImage)
 
+usersRouter.post('/:id/descriptors', users.createUserDescriptors)
+
 usersRouter.delete('/:id/images', users.deleteUserImages)
 usersRouter.delete('/:id/images/:imageId', users.deleteUserImage)
 

@@ -1,6 +1,7 @@
 import crypto from 'crypto'
 import supabase from '../services/supabase.js'
 import milvus from '../services/milvus.js'
+import { createDescriptors } from '../services/recognition.js'
 
 export const getUsers = async (req, res) => {
     const query = req.query.query
@@ -82,7 +83,29 @@ export const createUserDescriptors = async (req, res) => {
     const { id } = req.params
     const data = req.body
 
-    const images = await supabase.from('UserImage').select().eq('user_id', id)
+    const response = await supabase.from('UserImage').select().eq('user_id', id)
+    const images = response.data
+
+    const ids = images.map(i => i.id)
+
+    const milvusRes = await milvus.dataManager.query({
+        collection_name: 'faces',
+        expr: `id not in [${ids.join(',')}]`,
+        output_fields: ['id'],
+    })
+
+    const oldMilvusIds = milvusRes.data.map(r => r.id)
+
+    await milvus.dataManager.deleteEntities({
+        collection_name: 'faces',
+        expr: `id in [${oldMilvusIds.join(',')}]`,
+    })
+
+    const newIds = ids.filter(el => !oldMilvusIds.includes(el))
+    const filteredImages = images.filter(i => newIds.includes(i.id))
+    const finalRes = await createDescriptors(filteredImages)
+
+    res.json(finalRes)
 }
 
 export const deleteUserImages = async (req, res) => {

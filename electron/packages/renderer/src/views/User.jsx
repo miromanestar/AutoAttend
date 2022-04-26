@@ -2,11 +2,20 @@ import React, { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import {
     Button,
+    Paper,
     TextField,
     Typography,
+    CircularProgress,
+    Snackbar,
+    Alert
 } from '@mui/material'
 import { createUseStyles } from 'react-jss'
+import moment from 'moment'
 import Axios from '../tools/Axios'
+
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
+import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate'
+import MemoryIcon from '@mui/icons-material/Memory'
 
 import UserForm from '../components/UserForm'
 import ContentCard from '../components/ContentCard'
@@ -21,11 +30,25 @@ const useStyles = createUseStyles(theme => ({
     imageForm: {
         display: 'flex',
         gap: theme.spacing(2),
-        margin: theme.spacing(2)
+        margin: theme.spacing(2),
+        justifyContent: 'center'
     },
 
     images: {
 
+    },
+
+    imageItem: {
+        display: 'flex',
+        alignItems: 'center',
+        backgroundColor: `${theme.colors.background.highlight} !important`,
+        padding: theme.spacing(3),
+        gap: theme.spacing(4),
+    },
+
+    image: {
+        borderRadius: theme.radius[2],
+        height: '150px'
     }
 }))
 
@@ -36,6 +59,9 @@ const User = () => {
 
     const [user, setUser] = useState(null)
     const [images, setImages] = useState([])
+    const [loading, setLoading] = useState(false)
+    const [open, setOpen] = useState(false)
+    const [status, setStatus] = useState(null)
 
     const [newUrl, setNewUrl] = useState(null)
 
@@ -60,6 +86,27 @@ const User = () => {
         getUserImages()
     }
 
+    const createDescriptors = async () => {
+        setLoading(true)
+        const res = await Axios.post(`/users/${userId}/descriptors`).catch(err => console.log(err))
+        setLoading(false)
+        setStatus(res.status)
+        setOpen(true)
+    }
+
+    const removeImage = async (imageId) => {
+        const res = await Axios.delete(`/users/${userId}/images/${imageId}`).catch(err => console.log(err))
+
+        getUserImages()
+    }
+
+    const handleClose = (_e, reason) => {
+        if (reason === 'clickaway')
+            return
+
+        setOpen(false)
+    }
+
     useEffect(async () => {
         getUser()
         getUserImages()
@@ -81,7 +128,17 @@ const User = () => {
                 variant="contained"
                 color="accent"
             >
-                Add
+                <AddPhotoAlternateIcon />
+            </Button>
+
+            <Button
+                type="button"
+                className={classes.process}
+                variant="contained"
+                color="warning"
+                onClick={() => createDescriptors()}
+            >
+                { loading ? <CircularProgress /> : <MemoryIcon /> }
             </Button>
         </form>
     )
@@ -96,12 +153,43 @@ const User = () => {
             >
                 {
                     images.map(image => (
-                        <div key={image.id}>
-                            <img src={image.url} alt={image.image_url} />
-                        </div>
+                        <Paper className={classes.imageItem} elevation={4} key={image.id}>
+                            <div>
+                                <Typography variant="h6">
+                                    { moment(image.created).format('MM/DD/YY, h:mm A') }
+                                </Typography>
+
+                                <Button
+                                    sx={{ width: '100%' }}
+                                    variant="contained"
+                                    color="error"
+                                    onClick={() => removeImage(image.id)}
+                                >
+                                    <DeleteOutlineIcon />
+                                </Button>
+                            </div>
+                            <div>
+                                <img className={classes.image} src={image.url} alt={image.image_url} />
+                            </div>
+                        </Paper>
                     ))
                 }
             </ContentCard>
+
+            {open && 
+                <Snackbar
+                    open={open}
+                    autoHideDuration={3000}
+                    onClose={handleClose}
+                >
+                    { status === 200 ?
+                        <Alert severity="success" onClose={handleClose}>Descriptors updated successfully</Alert>
+                        :
+                        <Alert severity="error" onClose={handleClose}>Error creating descriptors</Alert>
+                    }
+                </Snackbar>
+            }
+
         </div>
     )
 }

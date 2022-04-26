@@ -32,14 +32,17 @@ faceapi.nets.faceRecognitionNet.loadFromDisk('./src/assets/models')
 // const matcher = new faceapi.FaceMatcher(descriptorArr, 0.6)
 
 
-const createDescriptors = async () => {
-    const results = await Promise.all(testImages.map(async entry => {
-        const image = await canvas.loadImage(entry.image)
+const createDescriptors = async (images) => {
+    if (images.length === 0)
+        return 'No images provided'
+
+    const results = await Promise.all(images.map(async entry => {
+        const image = await canvas.loadImage(entry.url)
         const desc = await faceapi.detectSingleFace(image).withFaceLandmarks().withFaceDescriptor()
 
         return {
-            id: Math.random() * 1000000000000,
-            user_id: entry.id,
+            id: entry.id,
+            user_id: entry.user_id,
             descriptor: [ ...desc.descriptor ]
         }
     }))

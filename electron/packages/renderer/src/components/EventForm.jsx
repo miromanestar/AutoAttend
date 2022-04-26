@@ -70,7 +70,7 @@ const EventForm = ({ event }) => {
     const handleSubmit = async (e) => {
         e.preventDefault()
 
-        setLoading('submit')
+        setLoading(true)
 
         let res = null
         if (event)
@@ -93,20 +93,20 @@ const EventForm = ({ event }) => {
         
         setLoading(false)
         setStatus(res.status)
-        setOpen(true)
+        setOpen('submit')
 
         if (res.data.status === 201)
             navigate(`/events/${res.data.data[0].id}`)
     }
 
     const handleDelete = async () => {
-        setLoading('delete')
+        setLoading(true)
 
         const res = await Axios.delete(`/events/${event.id}`).catch(err => console.log(err))
 
         setLoading(false)
         setStatus(res.status)
-        setOpen(true)
+        setOpen('delete')
 
         if (res.status === 200)
             setTimeout(() => navigate('/events'), 2000)
@@ -209,12 +209,12 @@ const EventForm = ({ event }) => {
 
             {open && 
                 <Snackbar
-                    open={open}
+                    open={open ? true : false}
                     autoHideDuration={3000}
                     onClose={handleClose}
                 >
                     { status === 200 ?
-                        <Alert severity="success" onClose={handleClose}>{ loading === 'submit' ? 'Event succsesfully updated' : 'Event successfully deleted' }</Alert>
+                        <Alert severity="success" onClose={handleClose}>{ open === 'submit' ? 'Event succsesfully updated' : 'Event successfully deleted' }</Alert>
                         :
                         <Alert severity="error" onClose={handleClose}>Error updating event</Alert>
                     }
