@@ -62,7 +62,23 @@ export const deleteUser = async (req, res) => {
 export const getUserImages = async (req, res) => {
     const id = req.params.id
     const response = await supabase.from('UserImage').select().eq('user_id', id)
-    res.json(response.data)
+
+    const milvusResponse = await milvus.dataManager.query({
+        collection_name: 'faces',
+        expr: `user_id == ${id}`,
+        output_fields: ['id'],
+    })
+
+    const milvusIds = milvusResponse.data.map(item => item.id)
+
+    const payload = response.data.map(item => {
+        return {
+            ...item,
+            hasDescriptor: milvusIds.includes(item.id.toString())
+        }
+    })
+
+    res.json(payload)
 }
 
 export const createUserImage = async (req, res) => {

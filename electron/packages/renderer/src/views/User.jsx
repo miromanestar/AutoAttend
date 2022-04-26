@@ -7,7 +7,8 @@ import {
     Typography,
     CircularProgress,
     Snackbar,
-    Alert
+    Alert,
+    Chip
 } from '@mui/material'
 import { createUseStyles } from 'react-jss'
 import moment from 'moment'
@@ -16,6 +17,8 @@ import Axios from '../tools/Axios'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate'
 import MemoryIcon from '@mui/icons-material/Memory'
+import CheckIcon from '@mui/icons-material/Check'
+import CloseIcon from '@mui/icons-material/Close'
 
 import UserForm from '../components/UserForm'
 import ContentCard from '../components/ContentCard'
@@ -34,22 +37,31 @@ const useStyles = createUseStyles(theme => ({
         justifyContent: 'center'
     },
 
-    images: {
-
-    },
-
     imageItem: {
         display: 'flex',
         alignItems: 'center',
         backgroundColor: `${theme.colors.background.highlight} !important`,
         padding: theme.spacing(3),
         gap: theme.spacing(4),
+        marginBottom: theme.spacing(2),
+    },
+
+    imageContainer: {
+        display: 'flex',
+        justifyContent: 'center',
+        flex: 1
     },
 
     image: {
         borderRadius: theme.radius[2],
         height: '150px'
-    }
+    },
+
+    imageContent: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: theme.spacing(1),
+    },
 }))
 
 const User = () => {
@@ -89,6 +101,7 @@ const User = () => {
     const createDescriptors = async () => {
         setLoading(true)
         const res = await Axios.post(`/users/${userId}/descriptors`).catch(err => console.log(err))
+        await getUserImages()
         setLoading(false)
         setStatus(res.status)
         setOpen(true)
@@ -154,7 +167,7 @@ const User = () => {
                 {
                     images.map(image => (
                         <Paper className={classes.imageItem} elevation={4} key={image.id}>
-                            <div>
+                            <div className={classes.imageContent}>
                                 <Typography variant="h6">
                                     { moment(image.created).format('MM/DD/YY, h:mm A') }
                                 </Typography>
@@ -167,8 +180,15 @@ const User = () => {
                                 >
                                     <DeleteOutlineIcon />
                                 </Button>
+                                <Chip
+                                    className={classes.chip}
+                                    variant="outlined"
+                                    icon={image.hasDescriptor ? <CheckIcon /> : <CloseIcon />}
+                                    color={image.hasDescriptor ? 'success' : 'warning'}
+                                    label={image.hasDescriptor ? 'Processed' : 'Unprocessed'}
+                                />
                             </div>
-                            <div>
+                            <div className={classes.imageContainer}>
                                 <img className={classes.image} src={image.url} alt={image.image_url} />
                             </div>
                         </Paper>
