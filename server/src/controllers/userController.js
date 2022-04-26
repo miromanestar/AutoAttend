@@ -106,7 +106,7 @@ export const createUserDescriptors = async (req, res) => {
 
     const milvusRes = await milvus.dataManager.query({
         collection_name: 'faces',
-        expr: `id not in [${ids.join(',')}]`,
+        expr: `user_id == ${id} && id not in [${ids.join(',')}]`,
         output_fields: ['id'],
     })
 

@@ -32,7 +32,6 @@ const params = {
     ]
 }
 
-const hasFacesCollection = await milvus.collectionManager.hasCollection({ collection_name: 'faces'})
-!hasFacesCollection && await milvus.collectionManager.createCollection(params)
+await milvus.collectionManager.createCollection(params)
 
 export default milvus
