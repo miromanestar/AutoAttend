@@ -4,7 +4,6 @@ import canvas from 'canvas'
 
 import supabase from './supabase.js'
 import milvus from './milvus.js'
-import testImages from '../assets/testImages.json'
 
 const { Canvas, Image, ImageData } = canvas
 faceapi.env.monkeyPatch({ Canvas, Image, ImageData })
@@ -68,10 +67,14 @@ const createDescriptors = async (images) => {
     //return await supabase.from('Descriptor').insert(results)
 }
 
+const loadMilvus = async () => {
 
-await milvus.collectionManager.loadCollection({
-    collection_name: 'faces',
-})
+    await milvus.collectionManager.loadCollection({
+        collection_name: 'faces',
+    })
+}
+
+loadMilvus()
 
 const matchDescriptors = async (data) => {
     const { detections } = data

@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "main": "src/server.js",
+  "bin" :"dist/built.js",
   "type": "module",
   "scripts": {
-    "start": "nodemon --experimental-json-modules ./src/server.js"
+    "start": "nodemon --experimental-json-modules ./src/server.js",
+    "build": "npx rollup ./src/server.js -o dist/built.js --format cjs && pkg . --targets latest-win-x64"
+   
   },
   "author": "",
   "license": "ISC",
@@ -22,5 +25,9 @@
     "dotenv": "^16.0.0",
     "express": "^4.17.2",
     "face-api.js": "^0.22.2"
+  },
+  "pkg": {
+    "output": "dist",
+    "options": ["experimental-modules"]
   }
 }

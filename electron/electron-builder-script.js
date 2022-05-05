@@ -15,11 +15,13 @@ module.exports = {
   win: {
     target: [
       {
-        target: "nsis",
+        //target: "nsis",
+        target: "portable",
         arch: ["x64"],
       },
     ],
-    artifactName: "${productName}-${version}-Setup.${ext}",
+    //artifactName: "${productName}-${version}-Setup.${ext}",
+    artifactName: "AutoAttend.${ext}",
   },
   nsis: {
     oneClick: false,

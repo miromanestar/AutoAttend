@@ -1,6 +1,8 @@
 node_modules
 .env
 milvus/volumes
+/electron/release
+/server/dist
 
 # Supabase
 **/supabase/.branches
