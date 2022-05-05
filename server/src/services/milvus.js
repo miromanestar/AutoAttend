@@ -32,6 +32,6 @@ const params = {
     ]
 }
 
-(async () => await milvus.collectionManager.createCollection(params))()
+await milvus.collectionManager.createCollection(params)
 
 export default milvus
